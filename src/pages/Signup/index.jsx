@@ -16,18 +16,18 @@ const validationSchema = yup.object().shape({
 
 export const Signup = () => {
     const [auth, setAuth] = useLocalStorage('auth', {});
-    
+
     const formik = useFormik({
         onSubmit: async (values) => {
             const res = await axios({
                 method: 'post',
-                baseURL: 'http://localhost:3000',
+                baseURL: import.meta.env.VITE_API_URL,
                 url: '/users',
                 data: values
             })
 
-            localStorage.setItem('auth', JSON.stringify(res.data))
-            
+            console.log(res.data);
+
         },
         initialValues: {
             name: '',
@@ -39,7 +39,7 @@ export const Signup = () => {
     })
 
     if (auth?.user?.id) {
-        return <Navigate to="/dashboard" repalce={true}/>
+        return <Navigate to="/dashboard" repalce={true} />
     }
 
     return (

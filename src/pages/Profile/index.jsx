@@ -7,110 +7,110 @@ import { useAsyncFn, useLocalStorage } from "react-use";
 import { Card, DateSelect, Icon } from "~/components";
 
 export const Profile = () => {
-    const params = useParams();
-    const navigate = useNavigate();
+  const params = useParams();
+  const navigate = useNavigate();
 
-    const [currentDate, setDate] = useState(formatISO(new Date(2022, 10, 20)));
-    const [auth, setAuth] = useLocalStorage("auth", {});
+  const [currentDate, setDate] = useState(formatISO(new Date(2022, 10, 20)));
+  const [auth, setAuth] = useLocalStorage("auth", {});
 
-    const [{ value: user, loading, error }, fetchHunches] = useAsyncFn(async () => {
-        const response = await axios({
-            method: "get",
-            baseURL: import.meta.env.VITE_API_URL,
-            url: `/${params.username}`,
-        });
-
-        const hunches = response.data.hunches.reduce((accumulator, hunch) => {
-            accumulator[hunch.gameId] = hunch;
-
-            return accumulator;
-        }, {});
-
-        return {
-            ...response.data,
-            hunches,
-        };
+  const [{ value: user, loading, error }, fetchHunches] = useAsyncFn(async () => {
+    const response = await axios({
+      method: "get",
+      baseURL: import.meta.env.VITE_API_URL,
+      url: `/${params.username}`,
     });
 
-    const [games, fetchGames] = useAsyncFn(async (params) => {
-        const response = await axios({
-            method: "get",
-            baseURL: import.meta.env.VITE_API_URL,
-            url: "/games",
-            params: params,
-        });
+    const hunches = response.data.hunches.reduce((accumulator, hunch) => {
+      accumulator[hunch.gameId] = hunch;
 
-        return response.data;
+      return accumulator;
+    }, {});
+
+    return {
+      ...response.data,
+      hunches,
+    };
+  });
+
+  const [games, fetchGames] = useAsyncFn(async (params) => {
+    const response = await axios({
+      method: "get",
+      baseURL: import.meta.env.VITE_API_URL,
+      url: "/games",
+      params: params,
     });
 
-    const logout = () => {
-        setAuth({});
-        navigate("/login");
-    }
+    return response.data;
+  });
 
-    const isLoading = games.loading || loading;
-    const hasError = games.error || error;
-    const isDone = !isLoading && !hasError;
+  const logout = () => {
+    setAuth({});
+    navigate("/login");
+  }
 
-    useEffect(() => {
-        fetchHunches();
-    }, []);
+  const isLoading = games.loading || loading;
+  const hasError = games.error || error;
+  const isDone = !isLoading && !hasError;
 
-    useEffect(() => {
-        fetchGames({ gameTime: currentDate });
-    }, [currentDate]);
+  useEffect(() => {
+    fetchHunches();
+  }, []);
 
-    return (
-        <>
-            <header className="bg-red-500 text-white">
-                <div className="container max-w-3xl flex justify-between p-4">
-                    <img src="/images/logo-fundo-vermelho.svg" className="w-28 md-40" />
+  useEffect(() => {
+    fetchGames({ gameTime: currentDate });
+  }, [currentDate]);
 
-                    {auth?.user?.id && (
-                        <div onClick={logout} className="p-2 cursor-pointer">
-                            Sair
-                        </div>
-                    )}
-                </div>
-            </header>
+  return (
+    <>
+      <header className="bg-red-500 text-white">
+        <div className="container max-w-3xl flex justify-between p-4">
+          <img src="/images/logo-fundo-vermelho.svg" className="w-28 md-40" />
 
-            <main className="space-y-6">
-                <section id="header" className="bg-red-500 text-white">
-                    <div className="container max-w-3xl space-y-2 p-4">
-                        <a href="/dashboard">
-                            <Icon name="back" className="w-10" />
-                        </a>
+          {auth?.user?.id && (
+            <div onClick={logout} className="p-2 cursor-pointer">
+              Sair
+            </div>
+          )}
+        </div>
+      </header>
 
-                        <h3 className="text-2xl font-bold">{user?.name}</h3>
-                    </div>
-                </section>
+      <main className="space-y-6">
+        <section id="header" className="bg-red-500 text-white">
+          <div className="container max-w-3xl space-y-2 p-4">
+            <a href="/dashboard">
+              <Icon name="back" className="w-10" />
+            </a>
 
-                <section id="content" className="container max-w-3xl p-4 space-y-4">
-                    <h2 className="text-red-500 text-xl font-bold">Seus palpites</h2>
+            <h3 className="text-2xl font-bold">{user?.name}</h3>
+          </div>
+        </section>
 
-                    <DateSelect currentDate={currentDate} onChange={setDate} />
+        <section id="content" className="container max-w-3xl p-4 space-y-4">
+          <h2 className="text-red-500 text-xl font-bold">Seus palpites</h2>
 
-                    <div className="space-y-4">
-                        {isLoading && "Carregando jogos..."}
+          <DateSelect currentDate={currentDate} onChange={setDate} />
 
-                        {hasError && "Ops! Algo deu errado."}
+          <div className="space-y-4">
+            {isLoading && "Carregando jogos..."}
 
-                        {isDone &&
-                            games.value?.map((game) => (
-                                <Card
-                                    key={game.id}
-                                    gameId={game.id}
-                                    homeTeam={game.homeTeam}
-                                    awayTeam={game.awayTeam}
-                                    gameTime={format(new Date(game.gameTime), "H:mm")}
-                                    homeTeamScore={user?.hunches?.[game.id]?.homeTeamScore || ""}
-                                    awayTeamScore={user?.hunches?.[game.id]?.awayTeamScore || ""}
-                                    disabled={true}
-                                />
-                            ))}
-                    </div>
-                </section>
-            </main>
-        </>
-    );
+            {hasError && "Ops! Algo deu errado."}
+
+            {isDone &&
+              games.value?.map((game) => (
+                <Card
+                  key={game.id}
+                  gameId={game.id}
+                  homeTeam={game.homeTeam}
+                  awayTeam={game.awayTeam}
+                  gameTime={format(new Date(game.gameTime), "H:mm")}
+                  homeTeamScore={user?.hunches?.[game.id]?.homeTeamScore || ""}
+                  awayTeamScore={user?.hunches?.[game.id]?.awayTeamScore || ""}
+                  disabled={true}
+                />
+              ))}
+          </div>
+        </section>
+      </main>
+    </>
+  );
 }

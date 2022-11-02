@@ -17,7 +17,7 @@ export const Login = () => {
         onSubmit: async (values) => {
             const res = await axios({
                 method: 'get',
-                baseURL: 'http://localhost:3000',
+                baseURL: import.meta.env.VITE_API_URL,
                 url: '/login',
                 auth: {
                     username: values.email,
@@ -35,7 +35,7 @@ export const Login = () => {
     })
 
     if (auth?.user?.id) {
-        return <Navigate to="/dashboard" repalce={true}/>
+        return <Navigate to="/dashboard" repalce={true} />
     }
 
     return (
