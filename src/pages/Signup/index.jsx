@@ -110,6 +110,7 @@ export const Signup = () => {
                     >
                         {formik.isSubmitting ? 'Carregando...' : 'Criar minha conta'}
                     </button>
+
                 </form>
             </main>
         </div>
